@@ -1,0 +1,26 @@
+Rules for React Hooks #
+    1. Only call hooks at the top level of your React functional compoent
+        Hooks should not be called in if statements, loops, or nested functions.
+        React Hooks such as "useState" and "useEffect" rely on the order in which they
+        are called to preserve the current context and to calculate for the next state or side effect accordingly.
+        If the order of hook calls is different in each render, it would break this flow in React. 
+        Personal Experiance -> due to ignoring this rule myntra's app crashed rapidly. (keep your linters on)
+    
+    2. Only call hooks from React Functional Components
+        React Hooks need current rendering context to work which is not available outside React components.
+
+Invalid Hook Call Warning #
+    Many developers run into this warning which is thrown by React on runtime.
+
+    Reasons behind this warning are
+        1. We broke the above mentioned 2 Rules
+        2. Mismatching React
+            Both "React" and the "React DOM" package versions should match exactly. Note that React Hooks are available in React 16.8 and above.
+        3. Duplicate React
+            Multiple copies of the React package in the same application will also cause an invalid hook call warning
+                Ways to avoid the above problem
+                    1. Use npm ls react to find the duplicate React packages and only keep one.
+                    2. Use Yarn resolutions to force a single version in the application.
+                    3. If using bundlers like webpack, define an alias to resolve react import to the React package in node_modules of your main app.
+
+
