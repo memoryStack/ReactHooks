@@ -1,32 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, createContext } from 'react';
+import { Header } from './Header';
+import { Layout } from './Layout';
+
+export const ThemeContext = createContext('light');
 
 const App = () => {
-  const [count, setCount] = useState(0)
-  const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    if (!message && count > 5) {
-      setMessage('Wow... you are on a click spree!')
-    }
-  }, [count, message])
-
-  const resetPressed = () => {
-    setCount(0)
-    setMessage('')
-  }
-
+  const [isDark, setIsDark] = useState(false);
+  
   return (
-    <div className="App">
-      <p>Current count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-      <button onClick={resetPressed}>Reset</button>
-      {message}
-    </div>
-  )
-}
+    <ThemeContext.Provider value={isDark ? 'dark' : 'light'}>
+      <Layout>
+        <Header />
+        <div className="settings">
+          <input
+            id="dark-option"
+            type="checkbox"
+            onChange={event => setIsDark(event.target.checked)}
+            checked={isDark}
+          />
+          <label htmlFor="dark-option">Dark theme</label>
+        </div>
+      </Layout>
+    </ThemeContext.Provider>
+  );
+};
 
-export default App
+export default App;
 
 // useState
 /**
@@ -58,3 +57,17 @@ export default App
         TODO: document what are the disadvatages of not doing so with examples.
 
 */
+
+// useContext
+/**
+ * useContext accepts a "React Context object" as the only input. Wherever a React Context API is being used,
+ * "useContext" will be used to retrieve the value of a given context. this extracted value is determined by 
+ * the nearest Context Provider. If the value of Context Provider changes, useContext hook will trigger a re-render in the calling component.
+ * NOTE: If a parent component uses memoization to skip renders, the useContext hook will still cause a re-render in a component where 
+ *        it was called in case context value changes.
+ *        Proof -> Here in Header.js file we have used memo fuction and this Header.js is a parent component of Logo.js component but still when 
+ *                  context values chages in App.js then Logo.js re-renders because of useContext hook.
+ *        
+ * 
+ * 
+ */
