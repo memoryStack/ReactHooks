@@ -1,29 +1,68 @@
-import React, { Fragment, useRef } from 'react';
+import React, {
+  useRef,
+  useLayoutEffect,
+  useState,
+  Fragment,
+} from 'react';
+
+const MAX_HEIGHT = 120;
+
+const Content = ({ children, truncate }) => {
+  if (truncate) {
+    return (
+      <Fragment>
+        {React.Children.map(children, (Item, ii) => {
+          const className = ii > 5 ? 'hidden' : '';
+          return React.cloneElement(Item, { className });
+        })}
+        <button>Read more coming soon</button>
+      </Fragment>
+    );
+  }
+  return <Fragment>{children}</Fragment>;
+};
 
 const App = () => {
-  const topSection = useRef(null);
-  const handleClick = () => {
-    window.scrollTo(0, topSection.current.offsetTop);
-  };
-
-  const getList = () => {
-    const array = []
-    for (let i=0;i<100;i++) {
-      array.push(<div className="content">Content section</div>)
+  const wrapper = useRef(null);
+  const [truncate, setTruncate] = useState(false);
+  
+  useLayoutEffect(() => {
+    if (wrapper.current.clientHeight > MAX_HEIGHT) {
+      setTruncate(true);
     }
-    return array
-  }
+  }, [wrapper]);
 
+  
   return (
-    <Fragment>
-      <div ref={topSection}>Top section</div>
-      {getList()}
-      <button onClick={handleClick}>Go to top</button>
-    </Fragment>
+    <div className="wrap" ref={wrapper}>
+      <Content truncate={truncate}>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+        <div>Some text</div>
+      </Content>
+    </div>
   );
 };
 
 export default App;
+
 
 // useState
 /**
@@ -110,4 +149,17 @@ export default App;
  * useRef provides the ref object with the "current" property set to the reference of node in DOM. (see the example above).
  * We can also use "useRef" to persist simple values also which doesn't change between renders by just not passing the initial returned ref object to any node.
  * By doing so we can update the value of the ref.current on any action and it will not create extra re-rendering which useState does.
+ */
+
+// useLayoutEffect
+/**
+ * 1. useLayoutEffect is an alternative to useEffect for layout updates.
+ * 2. A classic usage for this hook is to truncate long content if the length of the text is too long.
+ *    useLayoutEffect "synchronously re-renders" UI before the browser can paint.
+ *    Because useLayoutEffect can apply updates before the browser paint happens, you will not see any flicker or shrinking of long text which is visible on render
+ *    However, it means that it will take longer for the first view to appear in the browser because behind the scenes the paint has been blocked
+ *    until the useLayoutEffect callback has finished its work.
+ *    if we do the same thing with "useEffect" then first UI will apeear a little faster but the below button will load a little later and screen will flicker.
+ * TODO: Learn full extent of this hook. can it stop flickering in the input fields also while the user is inputing some text at the run time.
+ *        And is there a way to know that painting has started running ??
  */
