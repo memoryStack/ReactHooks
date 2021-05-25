@@ -1,29 +1,29 @@
-import React, { useMemo, useState } from 'react'
-
-const expensiveCall = (limit) => {
-  console.log('@@@@@@ expensive call ran')
-  let dum = limit
-  while(dum--){}
-  return limit
-}
+import React, { Fragment, useRef } from 'react';
 
 const App = () => {
-  
-  const [limit, setLimit] = useState(100)
-  const memoResult = useMemo(() => {
-      console.log('@@@@@@ memo callback ran')
-      return expensiveCall(limit)
-  }, [limit])
+  const topSection = useRef(null);
+  const handleClick = () => {
+    window.scrollTo(0, topSection.current.offsetTop);
+  };
+
+  const getList = () => {
+    const array = []
+    for (let i=0;i<100;i++) {
+      array.push(<div className="content">Content section</div>)
+    }
+    return array
+  }
 
   return (
-    <div className="App">
-      <h1>Memo Result: {memoResult}</h1>
-      <button onClick={() => setLimit(1000000000)}>Get Memo Result</button>
-    </div>
-  )
-}
+    <Fragment>
+      <div ref={topSection}>Top section</div>
+      {getList()}
+      <button onClick={handleClick}>Go to top</button>
+    </Fragment>
+  );
+};
 
-export default App
+export default App;
 
 // useState
 /**
@@ -102,4 +102,12 @@ export default App
  * CHETAVNI: It is a known fact with memoization hooks that React invalidates cache for useMemo or useCallback too often.
  *            Sometimes it can happen even when dependencies have not changed or when a change in prop or state was detected.
  * 
+ */
+
+// useRef
+/**
+ * use useRef hook to get the ref of a DOM node. Later, you can use this ref for certain actions related to that node. For example, scrolling to an element position.
+ * useRef provides the ref object with the "current" property set to the reference of node in DOM. (see the example above).
+ * We can also use "useRef" to persist simple values also which doesn't change between renders by just not passing the initial returned ref object to any node.
+ * By doing so we can update the value of the ref.current on any action and it will not create extra re-rendering which useState does.
  */
