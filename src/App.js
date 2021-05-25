@@ -86,3 +86,15 @@ export default App;
  *    TODO: learn when to use "useReducer" over "useState" even when we just need access to previous state value.
  * calling component will re-render if the state is changed.
  */   
+
+// useCallback
+/**
+ * Use the useCallback hook when wanting to memoize the "callback function". This callback may perform several actions when invoked.
+ * It will accept a dependecy array and the callback functio will bre created again if values in the dependency array changes.
+ * When do we use it :- 
+ *    Use memoization hooks only when there are benefits in terms of rendering performance. (basically callback function is memoized do children component prop won't change)
+ *    For example, when rendering large lists, a memoized result may speed up the actual rendering performance.
+ *    NOTE: For simple cases, it is not required to use memoization because the overhead may not offset the performance improvement.
+ *          Per component some simple arrow functions are ok.
+ * 
+ */
