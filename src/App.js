@@ -1,34 +1,29 @@
-import React, { useReducer } from 'react'
+import React, { useMemo, useState } from 'react'
 
-const INITIAL_STATE = { count: 0 }
-
-const reducer = (state, action) => {
-  const { type } = action || {}
-  if (!type) throw new Error('Action type must be defined')
-  switch(type) {
-    case 'increment':
-      return { count: state.count + 1 }
-    case 'decrement':
-      return { count: state.count - 1 }
-    default:
-        throw new Error('Did you misspell an action type?')
-  }
+const expensiveCall = (limit) => {
+  console.log('@@@@@@ expensive call ran')
+  let dum = limit
+  while(dum--){}
+  return limit
 }
 
 const App = () => {
-  console.log('@@@@@@@@ render')
-  const [state, dispatch] = useReducer(reducer, INITIAL_STATE)
+  
+  const [limit, setLimit] = useState(100)
+  const memoResult = useMemo(() => {
+      console.log('@@@@@@ memo callback ran')
+      return expensiveCall(limit)
+  }, [limit])
 
   return (
     <div className="App">
-      <h1>Counter: {state.count}</h1>
-      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>
-      <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>
+      <h1>Memo Result: {memoResult}</h1>
+      <button onClick={() => setLimit(1000000000)}>Get Memo Result</button>
     </div>
   )
 }
 
-export default App;
+export default App
 
 // useState
 /**
@@ -96,5 +91,15 @@ export default App;
  *    For example, when rendering large lists, a memoized result may speed up the actual rendering performance.
  *    NOTE: For simple cases, it is not required to use memoization because the overhead may not offset the performance improvement.
  *          Per component some simple arrow functions are ok.
+ * 
+ */
+
+// useMemo
+/**
+ * Use useMemo hook when wanting to memoize output returned from an "expensive compute" function. This compute function may perform heavy calculations on each function call.
+ * it's like DP memoisation. only diff is that next input must be same as previous one becoz it will hold the value from previous call only. if the next value changes then
+ * it will again compute the new value for new argument by calling the passed callback function and cache that.
+ * CHETAVNI: It is a known fact with memoization hooks that React invalidates cache for useMemo or useCallback too often.
+ *            Sometimes it can happen even when dependencies have not changed or when a change in prop or state was detected.
  * 
  */
