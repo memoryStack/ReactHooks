@@ -1,29 +1,32 @@
-import React, { useState, createContext } from 'react';
-import { Header } from './Header';
-import { Layout } from './Layout';
+import React, { useReducer } from 'react'
 
-export const ThemeContext = createContext('light');
+const INITIAL_STATE = { count: 0 }
+
+const reducer = (state, action) => {
+  const { type } = action || {}
+  if (!type) throw new Error('Action type must be defined')
+  switch(type) {
+    case 'increment':
+      return { count: state.count + 1 }
+    case 'decrement':
+      return { count: state.count - 1 }
+    default:
+        throw new Error('Did you misspell an action type?')
+  }
+}
 
 const App = () => {
-  const [isDark, setIsDark] = useState(false);
-  
+  console.log('@@@@@@@@ render')
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE)
+
   return (
-    <ThemeContext.Provider value={isDark ? 'dark' : 'light'}>
-      <Layout>
-        <Header />
-        <div className="settings">
-          <input
-            id="dark-option"
-            type="checkbox"
-            onChange={event => setIsDark(event.target.checked)}
-            checked={isDark}
-          />
-          <label htmlFor="dark-option">Dark theme</label>
-        </div>
-      </Layout>
-    </ThemeContext.Provider>
-  );
-};
+    <div className="App">
+      <h1>Counter: {state.count}</h1>
+      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>
+      <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>
+    </div>
+  )
+}
 
 export default App;
 
@@ -71,3 +74,15 @@ export default App;
  * 
  * 
  */
+
+// useReducer
+/**
+ * useReducer hook is an alternative to useState. It offers more control on the next state value based on a given action.
+ * If you are familiar with Redux Reducers, useReducer hook provides similar functionality out of the box in React.
+ * When to use "useReducer" :-
+ *    1. The shape of state object is complex. Maintain multiple items within the same state object.
+ *    2. Access previous state value to update the next state. (can be done by useState also)
+ *    3. Apply special logic on certain actions to calculate the next state. (just like redux reducers)
+ *    TODO: learn when to use "useReducer" over "useState" even when we just need access to previous state value.
+ * calling component will re-render if the state is changed.
+ */   
