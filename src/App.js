@@ -1,67 +1,32 @@
-import React, {
-  useRef,
-  useLayoutEffect,
-  useState,
-  Fragment,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 
-const MAX_HEIGHT = 120;
-
-const Content = ({ children, truncate }) => {
-  if (truncate) {
-    return (
-      <Fragment>
-        {React.Children.map(children, (Item, ii) => {
-          const className = ii > 5 ? 'hidden' : '';
-          return React.cloneElement(Item, { className });
-        })}
-        <button>Read more coming soon</button>
-      </Fragment>
-    );
-  }
-  return <Fragment>{children}</Fragment>;
-};
+const INITIAL_STATE = '';
 
 const App = () => {
-  const wrapper = useRef(null);
-  const [truncate, setTruncate] = useState(false);
-  
-  useLayoutEffect(() => {
-    if (wrapper.current.clientHeight > MAX_HEIGHT) {
-      setTruncate(true);
-    }
-  }, [wrapper]);
+  const [message, setMessage] = useState(INITIAL_STATE);
 
-  
-  return (
-    <div className="wrap" ref={wrapper}>
-      <Content truncate={truncate}>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-        <div>Some text</div>
-      </Content>
-    </div>
-  );
+  useEffect(() => {
+    loadMessage();
+  });
+
+  const loadMessage = () => {
+    console.log('>> Loading message <<');
+    try {
+      fetch('https://json.versant.digital/.netlify/functions/fake-api/message')
+        .then(res => res.json())
+        .then(message => {
+          setMessage(message);
+        });
+    } catch (e) {}
+  };
+
+  console.log(`>> Current message is: ${message || 'EMPTY'} <<`);
+
+  return <h1>{message}</h1>;
 };
 
 export default App;
+
 
 
 // useState
@@ -92,6 +57,14 @@ export default App;
   
   NOTE: The JS logic inside useEffect callback function can be moved within the function passed to the useEffect hook. We will explore the benefits of doing so.
         TODO: document what are the disadvatages of not doing so with examples.
+  
+  In the example above my thought was also that the effect would run infinitely because i used to think that if we don't pass any dependency array then useEffect would run after 
+  every render. But this is wrong. what happens is that useEffect hook synchronizes rather than being run after every re-render. It looks at the props and state available in
+  render scope and may skip when nothing changes in the scope. In this case, it skips running the effect after the second fetch is completed because both message
+  and setMessage are the same between renders. 
+  Dependencies array is a way to tell useEffect hook that our effect only depends on props provided in this array. Do not worry about anything else available in the component scope.
+  So, don't think of useEffect hook as componentDidUpdate and componentDidMount merged together but think of it as a function which will run after renders if there is a change in the 
+  state and prop variables in the scope. Either it will look for all the variables in the scope or the items passed in the dependency array.
 
 */
 
