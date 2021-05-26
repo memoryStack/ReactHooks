@@ -1,56 +1,70 @@
-/**
- * for the below code logs would be
- *  1. '@@@@@@ count', 0
- * and useState calls doesn't re-renders the component
- */
 
-import React, { Fragment, useState } from 'react';
+// problem
+import React, { useEffect, useState } from 'react';
 
-const INITIAL_COUNT = 0;
- 
-const App = () => {
-  const [count, setCount] = useState(INITIAL_COUNT);
-  console.log('@@@@@@ count', count)
+const Header = ({ name }) => {
+  // Name is a prop or external dependency
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    loadMessage(name);
+  }, [name]);
+
+  const loadMessage = nickName => {
+    // fetch and set message
+  };
+
   return (
-    <Fragment>
-      <p>
-        Current count is: {count}
-      </p>
-      <button onClick={() => setCount(INITIAL_COUNT)}>Click me</button>
-    </Fragment>
+    <h1>{message}</h1>
   );
 };
 
-export default App;
+// solution 1
+import React, { useEffect, useState } from 'react';
 
+const Header = ({ name }) => {
+  // Name is a prop or external dependency
+  const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    const loadMessage = nickName => {
+      // fetch and set message
+    };
+    loadMessage(name);
+  }, [name]);
 
-/**
- * for the below use of useState logs would be
- *  1. '@@@@@@ count', 0
- *  2. '@@@@@@ count', 5
- *  3. '@@@@@@ count', 5
- * 3 logs and after this useState won't re-render the component
- */
-import React, { Fragment, useState } from 'react';
-
-const INITIAL_COUNT = 0;
- 
-const App = () => {
-  const [count, setCount] = useState(INITIAL_COUNT);
-  console.log('@@@@@@ count', count)
   return (
-    <Fragment>
-      <p>
-        Current count is: {count}
-      </p>
-      <button onClick={() => setCount(5)}>Click me</button>
-    </Fragment>
+    <h1>{message}</h1>
   );
 };
 
-export default App;
+// solution 2
+import React, { useEffect, useState } from 'react';
 
+// put state or props independet logic outside the component. we can pass state or props variables here if required.
+const fetchMessage = () => {
+  return fetch(
+    'https://json.versant.digital/.netlify/functions/fake-api/message'
+  )
+    .then(res => res.json())
+    .catch(e => e.message);
+};
+
+const App = () => {
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const loadMessage = async () => {
+      // state logic is put inside callback body.
+      // this way we don't have to put any local function inside the dependecy array.
+      setMessage(await fetchMessage());
+    };
+
+    loadMessage();
+  }, []);
+
+  return <h1>{message}</h1>;
+};
 
 // useState
 /**
@@ -78,8 +92,7 @@ export default App;
         useEffect hook checks this dependency array to compare the previous and current value for those dependencies
         and then it runs the callback function but only if one of the dependencies has changed.
   
-  NOTE: The JS logic inside useEffect callback function can be moved within the function passed to the useEffect hook. We will explore the benefits of doing so.
-        TODO: document what are the disadvatages of not doing so with examples.
+  This TODO got complete in this commit.
   
   In the example above my thought was also that the effect would run infinitely because i used to think that if we don't pass any dependency array then useEffect would run after 
   every render. But this is wrong. what happens is that useEffect hook synchronizes rather than being run after every re-render. It looks at the props and state available in
@@ -158,4 +171,14 @@ export default App;
  *    if we do the same thing with "useEffect" then first UI will apeear a little faster but the below button will load a little later and screen will flicker.
  * TODO: Learn full extent of this hook. can it stop flickering in the input fields also while the user is inputing some text at the run time.
  *        And is there a way to know that painting has started running ??
+ */
+
+// About adding local functions in the dependency array
+/**
+ * In the example above "loadMessage" functions gets created for every render. if we add this function in the dependecy array of useEffect hook then it might lead to infinte
+ * re-renders. So, rules for adding local functions in the dependency array.
+ * 1. If this function does not use any variables from the component scope (state, props), then we don't need to add it in dependency array.
+ *    But if it does use it then it's better to include this function in the useEffect callback body itself. (see the solution 1 above)
+ *    And if we can't include this function inside the useEffect callback body then we should break the function such that we can put some part of code wrapped in a function
+ *    outside the component and other part inside the useEffect callback. (see the solution 2 above)
  */
