@@ -1,32 +1,55 @@
-import React, { useEffect, useState } from 'react';
+/**
+ * for the below code logs would be
+ *  1. '@@@@@@ count', 0
+ * and useState calls doesn't re-renders the component
+ */
 
-const INITIAL_STATE = '';
+import React, { Fragment, useState } from 'react';
 
+const INITIAL_COUNT = 0;
+ 
 const App = () => {
-  const [message, setMessage] = useState(INITIAL_STATE);
-
-  useEffect(() => {
-    loadMessage();
-  });
-
-  const loadMessage = () => {
-    console.log('>> Loading message <<');
-    try {
-      fetch('https://json.versant.digital/.netlify/functions/fake-api/message')
-        .then(res => res.json())
-        .then(message => {
-          setMessage(message);
-        });
-    } catch (e) {}
-  };
-
-  console.log(`>> Current message is: ${message || 'EMPTY'} <<`);
-
-  return <h1>{message}</h1>;
+  const [count, setCount] = useState(INITIAL_COUNT);
+  console.log('@@@@@@ count', count)
+  return (
+    <Fragment>
+      <p>
+        Current count is: {count}
+      </p>
+      <button onClick={() => setCount(INITIAL_COUNT)}>Click me</button>
+    </Fragment>
+  );
 };
 
 export default App;
 
+
+
+/**
+ * for the below use of useState logs would be
+ *  1. '@@@@@@ count', 0
+ *  2. '@@@@@@ count', 5
+ *  3. '@@@@@@ count', 5
+ * 3 logs and after this useState won't re-render the component
+ */
+import React, { Fragment, useState } from 'react';
+
+const INITIAL_COUNT = 0;
+ 
+const App = () => {
+  const [count, setCount] = useState(INITIAL_COUNT);
+  console.log('@@@@@@ count', count)
+  return (
+    <Fragment>
+      <p>
+        Current count is: {count}
+      </p>
+      <button onClick={() => setCount(5)}>Click me</button>
+    </Fragment>
+  );
+};
+
+export default App;
 
 
 // useState
