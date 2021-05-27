@@ -1,70 +1,59 @@
+import React, { useReducer } from 'react';
+import { Header } from './components/Header';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { User } from './components/User';
+import { Dashboard } from './components/Dashboard';
+import lodashGet from 'lodash.get';
 
-// problem
-import React, { useEffect, useState } from 'react';
-
-const Header = ({ name }) => {
-  // Name is a prop or external dependency
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    loadMessage(name);
-  }, [name]);
-
-  const loadMessage = nickName => {
-    // fetch and set message
-  };
-
-  return (
-    <h1>{message}</h1>
-  );
+const initialState = {
+  userType: 'customer',
+  profile: null,
+  greeting: '',
+  content: []
 };
 
-// solution 1
-import React, { useEffect, useState } from 'react';
+export const StoreContext = React.createContext([]);
 
-const Header = ({ name }) => {
-  // Name is a prop or external dependency
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const loadMessage = nickName => {
-      // fetch and set message
-    };
-    loadMessage(name);
-  }, [name]);
-
-  return (
-    <h1>{message}</h1>
-  );
-};
-
-// solution 2
-import React, { useEffect, useState } from 'react';
-
-// put state or props independet logic outside the component. we can pass state or props variables here if required.
-const fetchMessage = () => {
-  return fetch(
-    'https://json.versant.digital/.netlify/functions/fake-api/message'
-  )
-    .then(res => res.json())
-    .catch(e => e.message);
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'REFRESH_GREETING':
+      return {
+        ...state,
+        greeting: action.greeting
+      };
+    case 'REFRESH_PROFILE':
+      return {
+        ...state,
+        profile: action.profile
+      };
+    default:
+      return state;
+  }
 };
 
 const App = () => {
-  const [message, setMessage] = useState('');
+  const [globalState, dispatch] = useReducer(reducer, initialState);
+  const userType = lodashGet(globalState, 'userType');
+  console.log('@@@@@@@@ profile', globalState.profile)
 
-  useEffect(() => {
-    const loadMessage = async () => {
-      // state logic is put inside callback body.
-      // this way we don't have to put any local function inside the dependecy array.
-      setMessage(await fetchMessage());
-    };
-
-    loadMessage();
-  }, []);
-
-  return <h1>{message}</h1>;
+  return (
+    <div className="App">
+      <StoreContext.Provider value={[globalState, dispatch]}>
+        <Router>
+          <Header />
+          <div className="content">
+            <User userType={userType} />
+            <Switch>
+              <Route path="/dashboard" component={Dashboard} />
+            </Switch>
+          </div>
+        </Router>
+      </StoreContext.Provider>
+    </div>
+  );
 };
+
+export default App;
 
 // useState
 /**
