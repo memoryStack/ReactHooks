@@ -1,59 +1,31 @@
 import React, { useReducer } from 'react';
-import { Header } from './components/Header';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { User } from './components/User';
-import { Dashboard } from './components/Dashboard';
-import lodashGet from 'lodash.get';
-
-const initialState = {
-  userType: 'customer',
-  profile: null,
-  greeting: '',
-  content: []
-};
-
-export const StoreContext = React.createContext([]);
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'REFRESH_GREETING':
-      return {
-        ...state,
-        greeting: action.greeting
-      };
-    case 'REFRESH_PROFILE':
-      return {
-        ...state,
-        profile: action.profile
-      };
-    default:
-      return state;
-  }
-};
+import { StoreContext } from './store';
+import { reducer, INITIAL_STATE} from './store/reducer';
+import { Layout } from './components/Layout';
+import { Profile } from './components/Profile';
 
 const App = () => {
-  const [globalState, dispatch] = useReducer(reducer, initialState);
-  const userType = lodashGet(globalState, 'userType');
-  console.log('@@@@@@@@ profile', globalState.profile)
-
   return (
-    <div className="App">
-      <StoreContext.Provider value={[globalState, dispatch]}>
-        <Router>
-          <Header />
-          <div className="content">
-            <User userType={userType} />
-            <Switch>
-              <Route path="/dashboard" component={Dashboard} />
-            </Switch>
-          </div>
-        </Router>
-      </StoreContext.Provider>
-    </div>
+      <div className="App">
+        <Layout />
+        <Profile />
+      </div>
   );
 };
 
-export default App;
+const AppWithStore = () => {
+  const [globalState, dispatch] = useReducer(reducer, INITIAL_STATE);
+  return (
+    <StoreContext.Provider value={[globalState, dispatch]}>
+      <App />
+    </StoreContext.Provider>
+  );
+};
+
+export { App };
+
+export default AppWithStore;
+
 
 // useState
 /**
@@ -170,4 +142,22 @@ export default App;
  *    But if it does use it then it's better to include this function in the useEffect callback body itself. (see the solution 1 above)
  *    And if we can't include this function inside the useEffect callback body then we should break the function such that we can put some part of code wrapped in a function
  *    outside the component and other part inside the useEffect callback. (see the solution 2 above)
+ */
+
+// Why do we need our own hooks ??
+/**
+ * If an application needs the same stateful logic in two different places, it is a good idea to extract this code into your own hook.
+ * By doing so, you can share any stateful logic as a standalone module that can be tested on its own, shared, and reused.
+ * Some Examples of making the custom hooks are "useLocalStorage", "usePreviousValue", "useWindowScroll".
+ * We will learn it by making a "notify hook" which will tell user if certain action was completed successfully or not.
+ * which we can use in multiple pages in the app or even across apps.
+ * 
+ * Requirement of Notify Hook :-
+ *    Notify user about action completion status and remove the notification after 3 seconds.
+ * 
+ * you can use one of the following options when it comes to integration with the state in custom hooks:
+    1. Use a third-party provider like Redux or MobX. (TODO: explore this one in details)
+    2. Use the global state within React. (this method was shown in this tutorial)
+    3. Use dedicated state within a custom hook and share it through a getter function or simply return the reference to the state variable. (TODO: explore this way in details)
+ * 
  */
